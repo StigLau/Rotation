@@ -1,7 +1,8 @@
-module GameEngine exposing (init, view, update)
+module Admin exposing (main)
 
 import Array
 import Html exposing (..)
+
 
 
 type alias Model =
@@ -31,7 +32,16 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ ]
-        [ h1 [] [ text "Rotation - the game of revolving pipes and shit!" ]
+        [ h1 [] [ text "Rotation - Game Admin" ]
         , text (toString model)
         ]
 
+
+
+main : Program Never Model Msg
+main =
+    beginnerProgram
+        { model = init
+        , view = view
+        , update = update
+        }
