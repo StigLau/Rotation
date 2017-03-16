@@ -34,5 +34,11 @@ Frontend
 * .js interoperability is not trivial
 * Good fit with REST/JSON backend
 
+Match with this task
+--------------------
+Backend allows quick set up of test dataset. 
+Frontend is easy to set up for creating a GUI, and games are a good fit for using a Widget framework where writing gui-stuff is cheap. Elm would fit even better if the GUI had more interaction.
+Functional programming maps well to this and the problem domain of game logics writing (in my experience). Especially for ensuring that the code is cohesive, epsecially when performing large refactorings.
+
 Implementation details
 ======================
