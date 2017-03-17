@@ -3,7 +3,7 @@ module GameEngine exposing (init, view, update)
 import Array
 import Html exposing (..)
 import Html.Attributes exposing (class, href, type_)
-
+import Html.Events exposing (onClick)
 
 type alias Model =
     { --boardId : Maybe String
@@ -20,6 +20,7 @@ init =
 
 type Msg
     = CreateBoard (List String)
+    | SortBoard
 
 
 update : Msg -> Model -> Model
@@ -29,11 +30,22 @@ update msg model =
             let _ = Debug.log "Gots me a msg " msg
             in model
 
+        SortBoard ->
+            let
+                _ = Debug.log "Commence rotation! " msg
+                sortedBoard = rotatePipes model.gameBoard
+            in
+                { model | gameBoard = sortedBoard }
+
+rotatePipes: List (List String) -> List (List String)
+rotatePipes original = original
+
 view : Model -> Html Msg
 view model =
     div [ ]
         [ h1 [] [ text "Rotation - the game of revolving pipes and shit!" ]
         , boardView model
+        , button [ type_ "button", onClick SortBoard ] [ text "Commence Rotation" ]
         , text ("Current model: " ++ (toString model))
         ]
 
