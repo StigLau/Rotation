@@ -33,8 +33,8 @@ view : Model -> Html Msg
 view model =
     div [ ]
         [ h1 [] [ text "Rotation - the game of revolving pipes and shit!" ]
-        , text (toString model)
         , boardView model
+        , text ("Current model: " ++ (toString model))
         ]
 
 boardView : Model -> Html Msg
@@ -47,15 +47,18 @@ boardView model =
                     [ th [] [ text "Id" ] , th [] [] , th [] []
                     ]
                 ]
-            , tbody [] (List.map dvlRefRow model.gameBoard)
+            , tbody [] (List.map extractRows model.gameBoard)
             ]
         ]
 
-dvlRefRow : List String -> Html Msg
-dvlRefRow row =
-    tr []
-          [ td []  [ text "row.id " ]
-        ]
+extractRows : List String -> Html Msg
+extractRows row = tr [] [ td []  [ text(  foldText row) ] ]
+
+foldText: List String -> String
+foldText stringlist = List.foldl foldTextRule "" stringlist
+
+foldTextRule: String -> String -> String
+foldTextRule val end = val ++ "\t" ++ end
 
 
 normalTestBoard =
