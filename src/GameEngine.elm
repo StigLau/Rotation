@@ -1,20 +1,23 @@
 module GameEngine exposing (init, view, update)
 
-import Array
+import Set
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (class, href, type_)
 import Html.Events exposing (onClick)
 
 type alias Model =
     { --boardId : Maybe String
-    gameBoard : List (List String)
+    gameBoard : List (List String),
+    fun: Dict.Dict String (List String) -- Test of dictionary
     }
 
 
 init : Model
 init =
     { --boardId = Just "1"
-    gameBoard = paddedTestBoard
+    gameBoard = normalTestBoard
+    , fun = whatMatches
     }
 
 
@@ -38,7 +41,23 @@ update msg model =
                 { model | gameBoard = sortedBoard }
 
 rotatePipes: List (List String) -> List (List String)
-rotatePipes original = original
+--rotatePipes original = List.map traverse original
+rotatePipes original =
+    let
+        _ = Debug.log "Head; " List.head original
+        tail = case (List.tail original) of
+            Just something -> something
+            _ -> []
+
+    in
+        tail
+
+
+
+traverse: List String -> List String
+traverse stringList = List.map mapper stringList
+
+mapper asd = asd ++ "12"
 
 view : Model -> Html Msg
 view model =
@@ -86,3 +105,27 @@ paddedTestBoard =
     , ["0", "A", "0", "D", "0"]
     , ["0", "0", "0", "0", "0"]
     ]
+
+whatMatches = Dict.fromList[
+              ( "0", all )
+            , ( "1", leftOpening )
+            , ( "2", ["0"] ++ bottomOpening )
+            , ( "3", leftOpening ++ bottomOpening )
+            , ( "4", ["0"] ++ rightOpening )
+            , ( "5", leftOpening ++ rightOpening)
+            , ( "6", ["0"] ++ rightOpening ++ bottomOpening)
+            , ( "7", rightOpening ++ bottomOpening ++ leftOpening)
+            , ( "8", ["0"] ++ topOpening)
+            , ( "9", leftOpening ++ topOpening)
+            ]
+
+--notIn: List String -> List String
+--notIn remove = List.filter filterFunk remove
+
+--filterFunk var = Set.remove "1" all
+
+all = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
+leftOpening = ["1", "3", "5", "7", "9", "B", "D", "F"]
+topOpening = ["8", "9", "A", "B", "C", "D", "E", "F"]
+rightOpening = ["4", "5", "6", "7", "C", "D", "E", "F"]
+bottomOpening = ["2", "3", "6", "7", "A", "B", "E", "F"]
