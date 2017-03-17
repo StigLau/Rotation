@@ -47,17 +47,13 @@ Implementation details
 ======================
 * The goal of the algorithm is to produce Game Boards with differing but sane configurations of pipe-combinations.
 * The cells are stored in a 2-dimensional list/array, with a hex-values stored as string.
-* Choosing acceptable rotation, in a cell is done by passing through the row from left to right. 
+
+* Board passes.
+    * Combinations creation pass - Walk through each cell and find all possible rotations for this cell. Choose one rotation for this pass, and "fork off" the creation of a board alternative. All boards are stored in a list of boards. 
+    * Horizontal verification pass. Walks through each cell, remembering the previous cell value. If the combination of the two is erronous, this board is thrown away. 
+    * Vertical verification pass. As horizontal, just a different traversion. 
 * When choosing which pipe to place inside the current cell, the algorithm will search for eligible pipes "X opening" listset, using the value from this cell, and the cell to the left as input parameters to a search against the "X Opening" dataset. 
     * If more than one rotation is eligible, a new game board will be added to the set of game boards. The original and new game board will now differ by the one pipe.
-    * Each game board will pass through the algorithm until all rotations are found
-    * When encountering an illegal combination of pipes, the board will be thrown away
-* When current cell has a pipe with a top opening, the algorithm will do a detour to choose which pipe to place in the cell above
-    * If the above cell already has a chosen rotation, the board is thrown away. Most likely because it i 0
-* When preparing to evaluate a right-cell pass, that cell MAY already have a pipe in it already. The rotation of the cell is ignored and the algorithm continues.
-    * When traversing up or right, meeting a 0, and the pipe of the cell you just left has an opening pointing in this direction, the board is thrown.
-* I'm assuming that non-visually, the board-game is padded with 0's around the board-game the player sees. In effect, having 2 extra rows / columns with 0's.
-    * The motive for this boundary-wall of 0's is that one only has to use the above mentioned rules to be able to find all eligible boards. Jumping only right through a row, and occasionally 1 up-detour.
 
 
 Pipe set
