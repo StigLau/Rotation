@@ -52,9 +52,16 @@ rotatePipes original =
                         _ -> []
                 origHead = extractMaybe (List.head original)
                 tailHead = extractMaybe (List.head tail)
+
+                applicable = findApplicableRotations tailHead
+                _ = Debug.log (tailHead ++ " <- Applicable rotations->" ) ( applicable )
+
+
+                rotation1 = extractMaybe (List.head applicable)
+
                 rotation = extractMaybe (findApplicabeRotations origHead tailHead)
             in
-                [ rotation ] ++ rotatePipes tail
+                [ rotation1 ] ++ rotatePipes tail
 
 
 findApplicabeRotations: String -> String -> Maybe String
@@ -68,6 +75,28 @@ extractMaybe maybeString =
     case maybeString of
         Just string -> string
         _ -> ""
+
+findApplicableRotations: String -> List String
+findApplicableRotations input =
+    let
+        rezz =
+            if List.member input nully then
+                nully
+            else if List.member input stop then
+                stop
+            else if List.member input vinkel then
+                vinkel
+            else if List.member input fork then
+                fork
+            else if List.member input straight then
+                straight
+            else if List.member input cross then
+                cross
+            else
+                []
+        redacted = Set.diff (Set.fromList rezz) (Set.fromList [input])
+    in
+        Set.toList redacted
 
 view : Model -> Html Msg
 view model =
@@ -134,6 +163,13 @@ category = Dict.fromList[
             , ( "straight", ["5", "A"] )
             , ( "cross", ["5", "A"] )
             ]
+
+nully = ["0"]
+stop = ["1", "2", "4", "8"]
+vinkel = ["3", "6", "9", "C"]
+fork = ["7", "B", "D", "E"]
+straight = ["5", "A"]
+cross = ["5", "A"]
 
 --notIn: List String -> List String
 --notIn remove = List.filter filterFunk remove
