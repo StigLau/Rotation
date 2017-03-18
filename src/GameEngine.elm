@@ -8,16 +8,17 @@ import Html.Events exposing (onClick)
 
 type alias Model =
     { --boardId : Maybe String
-    gameBoard : List (List String),
-    fun: Dict.Dict String (List String) -- Test of dictionary
+    --gameBoard : List (List String)
+    gameBoard : List String
+    -- , fun: Dict.Dict String (List String) -- Test of dictionary
     }
 
 
 init : Model
 init =
     { --boardId = Just "1"
-    gameBoard = normalTestBoard
-    , fun = whatMatches
+    -- gameBoard = normalTestBoard
+    gameBoard = testBoardAsList
     }
 
 
@@ -40,19 +41,29 @@ update msg model =
             in
                 { model | gameBoard = sortedBoard }
 
-rotatePipes: List (List String) -> List (List String)
---rotatePipes original = List.map traverse original
+rotatePipes: List String -> List String
 rotatePipes original =
     let
         _ = Debug.log "Head; " List.head original
         tail = case (List.tail original) of
-            Just something -> something
-            _ -> []
-
+                Just something -> something
+                _ -> []
+        origHead = extractMaybe (List.head original)
+        tailHead = extractMaybe (List.head tail)
+        nextRotationList = findApplicabeRotations origHead tailHead
     in
         tail
+--        thislist
 
 
+extractMaybe: Maybe String -> String
+extractMaybe maybeString =
+    case maybeString of
+        Just string -> string
+        _ -> ""
+
+findApplicabeRotations: String -> String -> String
+findApplicabeRotations thisHead nextHead = "A"
 
 traverse: List String -> List String
 traverse stringList = List.map mapper stringList
@@ -78,7 +89,7 @@ boardView model =
                     [ th [] [ text "Id" ] , th [] [] , th [] []
                     ]
                 ]
-            , tbody [] (List.map extractRows model.gameBoard)
+            , tbody [] (List.map extractRows [ model.gameBoard ])
             ]
         ]
 
@@ -98,13 +109,8 @@ normalTestBoard =
     , ["A", "0", "D"]
     ]
 
-paddedTestBoard =
-    [ ["0", "0", "0", "0", "0"]
-    , ["0", "0", "1", "A", "0"]
-    , ["0", "2", "B", "C", "0"]
-    , ["0", "A", "0", "D", "0"]
-    , ["0", "0", "0", "0", "0"]
-    ]
+testBoardAsList =
+    ["0", "1", "A", "2", "B", "C", "A", "0", "D"]
 
 whatMatches = Dict.fromList[
               ( "0", all )
