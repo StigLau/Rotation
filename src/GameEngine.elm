@@ -43,26 +43,25 @@ update msg model =
 
 rotatePipes: List String -> List String
 rotatePipes original =
-    let
-        result = case original of
-            [] -> [] -- Came to the end of the list
-            _  ->
-                let
-                    tail = case (List.tail original) of
-                            Just list -> list
-                            _ -> []
-                    origHead = extractMaybe (List.head original)
-                    tailHead = extractMaybe (List.head tail)
-                in
-                    [ extractMaybe (findApplicabeRotations origHead tailHead) ] ++ rotatePipes tail
-    in
-        result
+    case original of
+        [] -> [] -- Came to the end of the list
+        _  ->
+            let
+                tail = case (List.tail original) of
+                        Just list -> list
+                        _ -> []
+                origHead = extractMaybe (List.head original)
+                tailHead = extractMaybe (List.head tail)
+                rotation = extractMaybe (findApplicabeRotations origHead tailHead)
+            in
+                [ rotation ] ++ rotatePipes tail
+
 
 findApplicabeRotations: String -> String -> Maybe String
 findApplicabeRotations thisHead nextHead =
-    case Dict.get thisHead whatMatches of
-            Nothing -> Nothing
-            Just stringList -> List.head stringList
+    case Dict.get thisHead leftMatchDict of
+            Nothing -> Just thisHead
+            Just stringList -> List.head (Set.toList stringList)
 
 extractMaybe: Maybe String -> String
 extractMaybe maybeString =
@@ -112,17 +111,28 @@ normalTestBoard =
 testBoardAsList =
     ["0", "1", "A", "2", "B", "C", "A", "0", "D"]
 
-whatMatches = Dict.fromList[
-              ( "0", all )
+leftMatchDict = Dict.fromList[
+              ( "0", allButLeftOpening )
             , ( "1", leftOpening )
-            , ( "2", ["0"] ++ bottomOpening )
-            , ( "3", leftOpening ++ bottomOpening )
-            , ( "4", ["0"] ++ rightOpening )
-            , ( "5", leftOpening ++ rightOpening)
-            , ( "6", ["0"] ++ rightOpening ++ bottomOpening)
-            , ( "7", rightOpening ++ bottomOpening ++ leftOpening)
-            , ( "8", ["0"] ++ topOpening)
-            , ( "9", leftOpening ++ topOpening)
+            , ( "2", allButLeftOpening )
+            , ( "3", leftOpening )
+            , ( "4", allButLeftOpening )
+            , ( "5", leftOpening )
+            , ( "6", allButLeftOpening )
+            , ( "7", leftOpening )
+            , ( "8", allButLeftOpening )
+            , ( "9", leftOpening )
+            ]
+allButLeftOpening = Set.diff all leftOpening
+
+
+category = Dict.fromList[
+              ( "0", ["0"])
+            , ( "stop", ["1", "2", "4", "8"])
+            , ( "vinkel", ["3", "6", "9", "C"] )
+            , ( "fork", ["7", "B", "D", "E"] )
+            , ( "straight", ["5", "A"] )
+            , ( "cross", ["5", "A"] )
             ]
 
 --notIn: List String -> List String
@@ -130,8 +140,8 @@ whatMatches = Dict.fromList[
 
 --filterFunk var = Set.remove "1" all
 
-all = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
-leftOpening = ["1", "3", "5", "7", "9", "B", "D", "F"]
-topOpening = ["8", "9", "A", "B", "C", "D", "E", "F"]
-rightOpening = ["4", "5", "6", "7", "C", "D", "E", "F"]
-bottomOpening = ["2", "3", "6", "7", "A", "B", "E", "F"]
+all = Set.fromList ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
+leftOpening = Set.fromList ["1", "3", "5", "7", "9", "B", "D", "F"]
+topOpening = Set.fromList ["8", "9", "A", "B", "C", "D", "E", "F"]
+rightOpening = Set.fromList ["4", "5", "6", "7", "C", "D", "E", "F"]
+bottomOpening = Set.fromList ["2", "3", "6", "7", "A", "B", "E", "F"]
