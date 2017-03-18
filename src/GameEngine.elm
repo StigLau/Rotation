@@ -44,31 +44,31 @@ update msg model =
 rotatePipes: List String -> List String
 rotatePipes original =
     let
-        _ = Debug.log "Head; " List.head original
-        tail = case (List.tail original) of
-                Just something -> something
-                _ -> []
-        origHead = extractMaybe (List.head original)
-        tailHead = extractMaybe (List.head tail)
-        nextRotationList = findApplicabeRotations origHead tailHead
+        result = case original of
+            [] -> [] -- Came to the end of the list
+            _  ->
+                let
+                    tail = case (List.tail original) of
+                            Just list -> list
+                            _ -> []
+                    origHead = extractMaybe (List.head original)
+                    tailHead = extractMaybe (List.head tail)
+                in
+                    [ extractMaybe (findApplicabeRotations origHead tailHead) ] ++ rotatePipes tail
     in
-        tail
---        thislist
+        result
 
+findApplicabeRotations: String -> String -> Maybe String
+findApplicabeRotations thisHead nextHead =
+    case Dict.get thisHead whatMatches of
+            Nothing -> Nothing
+            Just stringList -> List.head stringList
 
 extractMaybe: Maybe String -> String
 extractMaybe maybeString =
     case maybeString of
         Just string -> string
         _ -> ""
-
-findApplicabeRotations: String -> String -> String
-findApplicabeRotations thisHead nextHead = "A"
-
-traverse: List String -> List String
-traverse stringList = List.map mapper stringList
-
-mapper asd = asd ++ "12"
 
 view : Model -> Html Msg
 view model =
