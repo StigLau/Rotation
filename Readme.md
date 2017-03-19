@@ -1,6 +1,7 @@
 Rotation - Game of rotating pipes
 =================================
 
+[Test out Demo of **Rotation**](Main.html)
 
 Usage
 -----

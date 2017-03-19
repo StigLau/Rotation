@@ -45,7 +45,7 @@ init =
 view : Model -> Html Msg
 view model =
     div [ ]
-        [ h1 [] [ text "Rotation - the game of revolving pipes and shit" ]
+        [ h1 [] [ text "Rotation - the game of revolving pipes" ]
         , Html.map ListingMsg (Listing.view model.listing)
         , Html.map GameEngineMsg (GameEngine.view model.gameEngine)
         ]
