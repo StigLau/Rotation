@@ -4,7 +4,7 @@ import Set
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (class, href, type_)
-import Html.Events exposing (onClick)
+import Html.Events exposing (..)
 import Http
 import Json.Decode as JsonD
 import Json.Encode as JsonE
@@ -38,6 +38,7 @@ type Msg
     | FetchBoardResponseHandler (Result Http.Error GameBoard)
     | StoreBoard
     | SortBoard
+    | SetBoardId String
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
@@ -63,6 +64,14 @@ update msg model =
             Result.Err err ->
                 let _ = Debug.log "Error retrieving gameBoard" err
                 in (model, Cmd.none)
+
+        SetBoardId boardId ->
+            let
+                bord = model.gameBoard
+                bord2 = {bord | boardId = boardId }
+            in
+                ( { model | gameBoard = bord2 }, Cmd.none )
+
 
 rotatePipes: List String -> List String
 rotatePipes original =
@@ -127,7 +136,15 @@ view model =
         [ h1 [] [ text ("Game board: " ++ model.gameBoard.boardId) ]
         , boardView model
         , button [ type_ "button", onClick SortBoard ] [ text "Commence Rotation" ]
-        , text ("Current model: " ++ (toString model))
+        , div [] [input
+            [ type_ "text"
+                --, placeholder "Dvl Reference"
+                , onInput SetBoardId
+                , Html.Attributes.value model.gameBoard.boardId
+            ] []
+        ,  button [ type_ "button", onClick (FetchBoard model.gameBoard.boardId) ] [ text "Get Dvl" ] ]
+        , div [] [text ("Current model: " ++ (toString model))]
+
         ]
 
 boardView : Model -> Html Msg
