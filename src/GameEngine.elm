@@ -124,7 +124,7 @@ findApplicableRotations input =
 view : Model -> Html Msg
 view model =
     div [ ]
-        [ h1 [] [ text "Rotation - the game of revolving pipes and shit!" ]
+        [ h1 [] [ text ("Game board: " ++ model.gameBoard.boardId) ]
         , boardView model
         , button [ type_ "button", onClick SortBoard ] [ text "Commence Rotation" ]
         , text ("Current model: " ++ (toString model))
