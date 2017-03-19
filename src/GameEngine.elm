@@ -10,28 +10,20 @@ import Json.Decode as JsonD
 import Json.Encode as JsonE
 
 type alias Model =
-    { --boardId : Maybe String
-    --gameBoard : List (List String)
-    gameBoard : GameBoard
-    -- , fun: Dict.Dict String (List String) -- Test of dictionary
+    { gameBoard : GameBoard
     }
 
 type alias GameBoard =
-    {
-        boardId : String,
-        values: List String
+    { boardId : String
+    , values: List String
     }
 
 initModel =
-    { --boardId = Just "1"
-    -- gameBoard = normalTestBoard
-    gameBoard = GameBoard "123" testBoardAsList
+    { gameBoard = GameBoard "123" testBoardAsList
     }
 
 init : ( Model, Cmd Msg )
 init = ( initModel, (getBoard initModel.gameBoard.boardId FetchBoardResponseHandler) )
-
-
 
 type Msg
     = FetchBoard String
@@ -44,7 +36,7 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         FetchBoard id ->
-            ( model, getBoard "Fetch identity" FetchBoardResponseHandler )
+            ( model, getBoard id FetchBoardResponseHandler )
 
         StoreBoard ->
             ( model, updateKompo model.gameBoard FetchBoardResponseHandler )
