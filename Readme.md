@@ -2,6 +2,7 @@ Rotation - Game of rotating pipes
 =================================
 
 [Test out Demo of **Rotation**](Main.html)
+[Source code](https://github.com/stiglau/Rotation) 
 
 Usage
 -----
@@ -92,4 +93,8 @@ Todo's
 * Generate test set
 * Implement rendering of data set
 * Implement algorithm for traversing
-* Implement algorithm for selecting eligible pipes  
+* Implement algorithm for selecting eligible pipes
+  
+Compiling down to HTML
+======================
+elm-make Main.elm --output=Main.html`
