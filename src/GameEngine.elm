@@ -1,45 +1,68 @@
-module GameEngine exposing (init, view, update)
+module GameEngine exposing (init, view, update, Model, Msg)
 
 import Set
 import Dict
 import Html exposing (..)
 import Html.Attributes exposing (class, href, type_)
 import Html.Events exposing (onClick)
+import Http
+import Json.Decode as JsonD
+import Json.Encode as JsonE
 
 type alias Model =
     { --boardId : Maybe String
     --gameBoard : List (List String)
-    gameBoard : List String
+    gameBoard : GameBoard
     -- , fun: Dict.Dict String (List String) -- Test of dictionary
     }
 
+type alias GameBoard =
+    {
+        boardId : String,
+        values: List String
+    }
 
-init : Model
-init =
+initModel =
     { --boardId = Just "1"
     -- gameBoard = normalTestBoard
-    gameBoard = testBoardAsList
+    gameBoard = GameBoard "123" testBoardAsList
     }
+
+init : ( Model, Cmd Msg )
+init = ( initModel, (getBoard initModel.gameBoard.boardId FetchBoardResponseHandler) )
+
 
 
 type Msg
-    = CreateBoard (List String)
+    = FetchBoard String
+    | FetchBoardResponseHandler (Result Http.Error GameBoard)
+    | StoreBoard
     | SortBoard
 
-
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        CreateBoard stringList ->
-            let _ = Debug.log "Gots me a msg " msg
-            in model
+        FetchBoard id ->
+            ( model, getBoard "Fetch identity" FetchBoardResponseHandler )
+
+        StoreBoard ->
+            ( model, updateKompo model.gameBoard FetchBoardResponseHandler )
 
         SortBoard ->
             let
                 _ = Debug.log "Commence rotation! " msg
-                sortedBoard = rotatePipes model.gameBoard
+                gBoard = model.gameBoard
+                gBoard2 = { gBoard | values = rotatePipes model.gameBoard.values }
             in
-                { model | gameBoard = sortedBoard }
+                ({ model | gameBoard = gBoard2 }, Cmd.none)
+
+        FetchBoardResponseHandler res -> case res of
+            Result.Ok gameBoard ->
+                ({ model | gameBoard = gameBoard }, Cmd.none)
+
+            Result.Err err ->
+                let _ = Debug.log "Error retrieving gameBoard" err
+                in (model, Cmd.none)
 
 rotatePipes: List String -> List String
 rotatePipes original =
@@ -117,7 +140,7 @@ boardView model =
                     [ th [] [ text "Id" ] , th [] [] , th [] []
                     ]
                 ]
-            , tbody [] (List.map extractRows [ model.gameBoard ])
+            , tbody [] (List.map extractRows [ model.gameBoard.values ])
             ]
         ]
 
@@ -130,6 +153,44 @@ foldText stringlist = List.foldl foldTextRule "" stringlist
 foldTextRule: String -> String -> String
 foldTextRule val end = val ++ "\t" ++ end
 
+
+{--API calls against backend store--}
+storeUrl : String
+storeUrl = "http://rotation.makeshitapp.com/"
+
+getBoard : String -> (Result Http.Error GameBoard -> msg) -> Cmd msg
+getBoard id msg = Http.get (storeUrl ++ id) boardDecoder |> Http.send msg
+
+updateKompo: GameBoard -> (Result Http.Error GameBoard -> msg) -> Cmd msg
+updateKompo gameBoard msg =
+    Http.request
+        { method = "PUT"
+        , headers = []
+        , url = storeUrl ++ gameBoard.boardId --?" ++ toString gameBoard.name
+        , body = Http.stringBody "application/json" <| encodeBoard gameBoard
+        , expect = Http.expectJson boardDecoder
+        , timeout = Nothing
+        , withCredentials = False
+        }
+        |> Http.send msg
+
+
+boardDecoder : JsonD.Decoder GameBoard
+boardDecoder =
+            JsonD.map2 GameBoard
+                           (JsonD.field "_id" JsonD.string)
+                           (JsonD.field "board" <| (JsonD.list JsonD.string) )
+
+encodeBoard : GameBoard -> String
+encodeBoard board =
+    JsonE.encode 0 <|
+        JsonE.object
+            [ ( "_id", JsonE.string board.boardId )
+            --, ( "board", JsonE.list <| List.map encodeSegment board.values )
+            , ( "board", JsonE.list <| List.map JsonE.string board.values )
+            ]
+
+{-- Test- and Setup-Data --}
 
 normalTestBoard =
     [ ["0", "1", "A"]
@@ -171,10 +232,6 @@ fork = ["7", "B", "D", "E"]
 straight = ["5", "A"]
 cross = ["5", "A"]
 
---notIn: List String -> List String
---notIn remove = List.filter filterFunk remove
-
---filterFunk var = Set.remove "1" all
 
 all = Set.fromList ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
 leftOpening = Set.fromList ["1", "3", "5", "7", "9", "B", "D", "F"]
