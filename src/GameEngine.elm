@@ -125,18 +125,15 @@ findApplicableRotations input =
 view : Model -> Html Msg
 view model =
     div [ ]
-        [ h1 [] [ text ("Game board: " ++ model.gameBoard.boardId) ]
+        [ input
+          [ type_ "text"
+              , onInput SetBoardId
+              , Html.Attributes.value model.gameBoard.boardId
+          ] []
+        , button [ type_ "button", onClick (FetchBoard model.gameBoard.boardId) ] [ text "Fetch Board" ]
         , boardView model
         , button [ type_ "button", onClick SortBoard ] [ text "Commence Rotation" ]
-        , div [] [input
-            [ type_ "text"
-                --, placeholder "Dvl Reference"
-                , onInput SetBoardId
-                , Html.Attributes.value model.gameBoard.boardId
-            ] []
-        ,  button [ type_ "button", onClick (FetchBoard model.gameBoard.boardId) ] [ text "Get Dvl" ] ]
         , div [] [text ("Current model: " ++ (toString model))]
-
         ]
 
 boardView : Model -> Html Msg
@@ -201,7 +198,7 @@ encodeBoard board =
 
 {-- Test- and Setup-Data --}
 
-normalTestBoard =
+twoDimensionalTestBoard =
     [ ["0", "1", "A"]
     , ["2", "B", "C"]
     , ["A", "0", "D"]

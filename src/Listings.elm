@@ -46,7 +46,7 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div [ class "listings" ]
-        [  text ("List of boards in store: " ++ kompoUrl)
+        [  text ("List of boards in store: " ++ storeUrl)
         , table [ class "table table-striped" ]
             [ thead []
                 [ tr []
@@ -55,18 +55,17 @@ view model =
                     , th [] []
                     ]
                 ]
-            , tbody [] (List.map dvlRefRow model.rows)
+            , tbody [] (List.map singleRow model.rows)
             ]
+        , text ("BoardId must be manually placed in InputField 'Fetch Board'")
         ]
 
-dvlRefRow : Row -> Html Msg
-dvlRefRow row =
-    tr []
-          [ td []  [ button [ type_ "button", onClick (ChooseId row.id)] [ text row.id ] ] --EvictBraggis(ChooseId row.id)
-        ]
+singleRow : Row -> Html Msg
+singleRow row =
+    tr [] [ td []  [ button [ type_ "button", onClick (ChooseId row.id)] [ text row.id ] ]  ]
 
-kompoUrl : String
-kompoUrl = "http://rotation.makeshitapp.com/"
+storeUrl : String
+storeUrl = "http://rotation.makeshitapp.com/"
 
 init : ( Model, Cmd Msg )
 init = ( initModel, (listDvlIds FetchDvlIdsResponseHandler) )
@@ -85,7 +84,7 @@ myUpdate msg model =
         in (modelz, cmd)
 
 listDvlIds : (Result Http.Error Model -> msg) -> Cmd msg
-listDvlIds msg = Http.get (kompoUrl ++ "_all_docs") dvlRefDecoder |> Http.send msg
+listDvlIds msg = Http.get (storeUrl ++ "_all_docs") dvlRefDecoder |> Http.send msg
 
 dvlRefDecoder : JsonD.Decoder Model
 dvlRefDecoder = JsonD.map3 Model
