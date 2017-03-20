@@ -23,7 +23,20 @@ initModel =
     }
 
 init : ( Model, Cmd Msg )
-init = ( initModel, (getBoard initModel.gameBoard.boardId FetchBoardResponseHandler) )
+init =
+    let
+        rez = doForAllInList twoDimensionalTestBoard
+        _ = Debug.log "Going through list! " rez
+    in
+        ( initModel, (getBoard initModel.gameBoard.boardId FetchBoardResponseHandler) )
+
+
+doForAllInList: List(List String) -> List(List String)
+doForAllInList inList =
+        case inList of
+            [imAlone] :: restList -> [["Alone in tha world"]] ++ restList
+            firstList :: restList -> [rotatePipes firstList] ++ doForAllInList restList
+            [] -> [[]] -- reached the end
 
 type Msg
     = FetchBoard String
@@ -199,7 +212,8 @@ encodeBoard board =
 {-- Test- and Setup-Data --}
 
 twoDimensionalTestBoard =
-    [ ["0", "1", "A"]
+    [ ["loner"]
+    , ["0", "1", "A"]
     , ["2", "B", "C"]
     , ["A", "0", "D"]
     ]
