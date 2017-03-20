@@ -46,11 +46,24 @@ doForAllInList inList =
                         case a of
                             head :: tail -> -- Combine the last of first list and head of second
                                 let
-                                    rezu = extractMaybe (findApplicabeRotations imAlone head)
-                                    _ = Debug.log ("Result of rotation: " ++ imAlone ++ " " ++ head) rezu
+                                    rez1: List String
+                                    rez1 = findApplicabeRotations imAlone head
+                                    _ = Debug.log ("Original " ) ([imAlone]++[head])
+                                    _ = Debug.log ("Alternatives ") rez1
+                                    rez2 = (findPairApplicableRotations head)
+                                    _ = Debug.log (" Recommendation ") ([imAlone] ++ rez2)
+
+
+                                    intersection = Set.diff (Set.fromList rez1) (Set.fromList rez2)
+                                    _ = Debug.log ("Result of intersecting" ) intersection
+
+
+                                    rezu = (findApplicabeRotations imAlone head) ++ (findPairApplicableRotations head)-- intersect applicable rotations with this ones available rotations
+                                    _ = Debug.log ("Result of rotation: " ++ imAlone ++ " " ++ head ++ "!") rezu
 
                                 in
-                                    [["got me here at least. a->"], a, [head], ["<- head  tail->"], tail]  ++ b ++ doForAllInList restList--[[extractMaybe (findApplicabeRotations imAlone head)]]
+                                    [a ++ rez2]
+                                    --[["got me here at least. a->"], a, [head], ["<- head  tail->"], tail]  ++ b ++ doForAllInList restList--[[extractMaybe (findApplicabeRotations imAlone head)]]
                             _ -> [["Have no clue"]]
                 --[["Alone in tha world"]] ++ restList
             firstList :: restList -> [rotatePipes firstList] ++ doForAllInList restList
@@ -108,22 +121,22 @@ rotatePipes original =
                 origHead = extractMaybe (List.head original)
                 tailHead = extractMaybe (List.head tail)
 
-                applicable = findApplicableRotations tailHead
+                applicable = findPairApplicableRotations tailHead
                 _ = Debug.log (tailHead ++ " <- Applicable rotations->" ) ( applicable )
 
 
                 rotation1 = extractMaybe (List.head applicable)
 
-                rotation = extractMaybe (findApplicabeRotations origHead tailHead)
+                rotation = findApplicabeRotations origHead tailHead
             in
                 [ rotation1 ] ++ rotatePipes tail
 
-
-findApplicabeRotations: String -> String -> Maybe String
+--Finds applicable rotations for the second variable
+findApplicabeRotations: String -> String -> List String
 findApplicabeRotations thisHead nextHead =
-    case Dict.get thisHead leftMatchDict of
-            Nothing -> Just thisHead
-            Just stringList -> List.head (Set.toList stringList)
+    case Dict.get nextHead rightMatchDict of
+            Nothing -> [ nextHead]
+            Just stringList -> Set.toList stringList
 
 extractMaybe: Maybe String -> String
 extractMaybe maybeString =
@@ -131,8 +144,8 @@ extractMaybe maybeString =
         Just string -> string
         _ -> ""
 
-findApplicableRotations: String -> List String
-findApplicableRotations input =
+findPairApplicableRotations: String -> List String
+findPairApplicableRotations input =
     let
         rezz =
             if List.member input nully then
@@ -239,7 +252,7 @@ twoDimensionalTestBoard =
 testBoardAsList =
     ["0", "1", "A", "2", "B", "C", "A", "0", "D"]
 
-leftMatchDict = Dict.fromList[
+rightMatchDict = Dict.fromList[
               ( "0", allButLeftOpening )
             , ( "1", leftOpening )
             , ( "2", allButLeftOpening )
