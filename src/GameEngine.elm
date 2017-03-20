@@ -25,8 +25,9 @@ initModel =
 init : ( Model, Cmd Msg )
 init =
     let
+        _ = Debug.log "Before rotation: " twoDimensionalTestBoard
         rez = doForAllInList twoDimensionalTestBoard
-        _ = Debug.log "Going through list! " rez
+        _ = Debug.log "Result of rotation! " rez
     in
         ( initModel, (getBoard initModel.gameBoard.boardId FetchBoardResponseHandler) )
 
@@ -34,7 +35,24 @@ init =
 doForAllInList: List(List String) -> List(List String)
 doForAllInList inList =
         case inList of
-            [imAlone] :: restList -> [["Alone in tha world"]] ++ restList
+            [imAlone] :: restList ->
+                case restList of
+                    [[justOneElement]] ->  [["just One Element"]] ++ doForAllInList restList--[[extractMaybe (findApplicabeRotations imAlone justOneElement)]] --[extractMaybe (findApplicabeRotations justOneElement "0")]
+                    --[justOneElement] :: restList ->  [["One Element and Restlist "]] ++ doForAllInList restList
+                    [] -> [["Empty found"]]
+                    --_ -> [["Underscore"]] ++ doForAllInList restList
+                    --a::b -> [["Giving up"]] ++ doForAllInList restList -- Functional!
+                    a::b ->
+                        case a of
+                            head :: tail -> -- Combine the last of first list and head of second
+                                let
+                                    rezu = extractMaybe (findApplicabeRotations imAlone head)
+                                    _ = Debug.log ("Result of rotation: " ++ imAlone ++ " " ++ head) rezu
+
+                                in
+                                    [["got me here at least. a->"], a, [head], ["<- head  tail->"], tail]  ++ b ++ doForAllInList restList--[[extractMaybe (findApplicabeRotations imAlone head)]]
+                            _ -> [["Have no clue"]]
+                --[["Alone in tha world"]] ++ restList
             firstList :: restList -> [rotatePipes firstList] ++ doForAllInList restList
             [] -> [[]] -- reached the end
 
@@ -212,9 +230,9 @@ encodeBoard board =
 {-- Test- and Setup-Data --}
 
 twoDimensionalTestBoard =
-    [ ["loner"]
-    , ["0", "1", "A"]
+    [ ["0", "1", "A"]
     , ["2", "B", "C"]
+    , ["C"]
     , ["A", "0", "D"]
     ]
 
